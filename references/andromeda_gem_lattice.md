@@ -10,7 +10,7 @@ Andromeda représente la première étape cruciale du processus de sélection pu
 
 Au cœur d'Andromeda se trouve un réseau de neurones profonds d'une complexité sans précédent, spécialement conçu pour fonctionner sur les superpuces **NVIDIA Grace Hopper (GH200)** et les accélérateurs d'IA de Meta (MTIA). Cette puissance de calcul massive permet à Andromeda de modéliser des interactions d'ordre supérieur extrêmement complexes entre les signaux des utilisateurs (comportements, intérêts) et les attributs des publicités. Le système ne se contente plus de correspondances simples ; il apprend des relations latentes et nuancées pour identifier les publicités les plus prometteuses.
 
-Une innovation majeure d'Andromeda est son **indexation hiérarchique**. Face à la croissance exponentielle du nombre de créations publicitaires, notamment avec les outils d'IA générative, une simple recherche exhaustive deviendrait rapidement inefficace. Andromeda organise donc les publicités dans une structure arborescente à plusieurs niveaux. Le modèle est entraîné conjointement avec cet index, ce qui lui permet d'apprendre à naviguer intelligemment dans cette hiérarchie, en élaguant des branches entières de l'arbre de recherche pour se concentrer uniquement sur les 
+Une innovation majeure d'Andromeda est son **indexation hiérarchique**. Face à la croissance exponentielle du nombre de créations publicitaires, notamment avec les outils d'IA générative, une simple recherche exhaustive deviendrait rapidement inefficace. Andromeda organise donc les publicités dans une structure arborescente à plusieurs niveaux. Le modèle est entraîné conjointement avec cet index, ce qui lui permet d'apprendre à naviguer intelligemment dans cette hiérarchie, en élaguant des branches entières de l'arbre de recherche pour se concentrer uniquement sur les
 nœuds les plus pertinents. Cette approche garantit une inférence sous-linéaire, ce qui signifie que le coût de calcul augmente beaucoup plus lentement que le nombre de publicités, assurant ainsi la scalabilité du système.
 
 Andromeda introduit également le concept d'**élasticité du modèle**. Le système peut ajuster dynamiquement la complexité du modèle et le nombre d'étapes d'inférence en temps réel, en fonction des ressources disponibles et de la valeur potentielle d'une requête. Pour les segments d'audience à haute valeur, Andromeda déploie des modèles plus complexes pour maximiser le retour sur investissement, tandis que pour les segments à plus faible valeur, il utilise des modèles plus légers pour économiser les ressources. Cette agilité permet une allocation optimale des ressources de calcul à l'échelle de la plateforme.
@@ -104,12 +104,33 @@ En conclusion, la "Meta Trinity" a transformé la publicité sur les plateformes
 
 ## Apprentissages Terrain
 
-*Cette section est laissée intentionnellement vide et sera complétée au fur et à mesure des analyses de campagnes et des observations concrètes issues de l'utilisation du skill meta-ads-analyzer.*
+### Mai 2026 — Convergence winner-take-all à budget contraint
+
+**Observation :** À 30€/jour avec ~10 ads actives simultanément, Andromeda converge systématiquement sur 1 seule ad et en ignore d'autres qui ont pourtant eu de bons volumes historiques.
+
+**Explication mécanique :**
+- Avec 30€/j pour 10 ads, le budget effectif par créative est ~3€/j. Ce volume est insuffisant pour que GEM accumule des signaux de conversion fiables sur la majorité des ads.
+- Le système entre en phase d'exploitation prématurée : dès qu'une ad accumule quelques signaux positifs, GEM lui attribue un score de conversion prédictif plus élevé, et Lattice la sélectionne massivement.
+- Les ads avec de bons volumes *passés* mais inactives ou récréées peuvent avoir un Entity ID dont les signaux récents sont insuffisants : Andromeda travaille sur les signaux actuels, pas sur l'historique lointain.
+
+**Règle empirique terrain :**
+
+| Budget quotidien | Nombre d'ads actives recommandées |
+|---|---|
+| 30€/jour | 3 à 4 ads max |
+| 50€/jour | 4 à 5 ads max |
+| 100€/jour | 6 à 8 ads max |
+
+**Recommandation opérationnelle :**
+- Ne pas chercher à équilibrer manuellement l'allocation (contre-productif)
+- Réduire le pool actif à 3-4 ads visuellement distinctes (Entity IDs différents)
+- Adopter un système de rotation : archiver l'ad fatiguée (CTR en baisse + fréquence > 2.5), introduire une nouvelle créative progressivement
+- Laisser le "winner" gagner, gérer par renouvellement créatif plutôt que par contrôle manuel du budget
 
 ## Références
 
 [1] Meta Engineering. (2024, 2 décembre). *Meta Andromeda: Supercharging Advantage+ automation with the next-gen personalized ads retrieval engine*. https://engineering.fb.com/2024/12/02/production-engineering/meta-andromeda-advantage-automation-next-gen-personalized-ads-retrieval-engine/
 
-[2] Meta Engineering. (2025, 10 novembre). *Meta’s Generative Ads Model (GEM): The Central Brain Accelerating Ads Recommendation AI Innovation*. https://engineering.fb.com/2025/11/10/ml-applications/metas-generative-ads-model-gem-the-central-brain-accelerating-ads-recommendation-ai-innovation/
+[2] Meta Engineering. (2025, 10 novembre). *Meta's Generative Ads Model (GEM): The Central Brain Accelerating Ads Recommendation AI Innovation*. https://engineering.fb.com/2025/11/10/ml-applications/metas-generative-ads-model-gem-the-central-brain-accelerating-ads-recommendation-ai-innovation/
 
 [3] Luo, L., Chen, Y., Zhang, Z., et al. (2025). *Meta Lattice: Model Space Redesign for Cost-Effective Industry-Scale Ads Recommendations*. arXiv. https://arxiv.org/abs/2512.09200
