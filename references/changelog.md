@@ -1,5 +1,28 @@
 # Changelog — Skill meta-ads-analyzer
 
+## Apprentissage terrain — 8 juin 2026 (Padel Mon Amour)
+
+**Analyse Events Manager — Compte Padel Mon Amour**
+
+### Patterns observés
+
+**EMQ 6.1/10 avec CAPI active :**
+- CAPI active ne garantit pas un bon EMQ. Le canal peut être opérationnel mais les paramètres client (email, phone, fbp, fbc, external_id) insuffisants → score dégradé.
+- Correction prioritaire : passer le partage de données Shopify en "Maximum" + ajouter external_id.
+
+**Anomalie AddPaymentInfo < Purchase :**
+- 52 AddPaymentInfo vs 76 Purchase = les méthodes de paiement express (Apple Pay, Google Pay, Stripe one-click) bypassent l'étape "Add Payment Info".
+- Ce pattern est normal pour les boutiques avec checkout rapide activé. Ne pas interpréter comme une erreur de tracking sauf si l'écart est très important (>50%).
+
+**Optimisation ATC vs Purchase sur petit volume :**
+- ~2.7 achats/jour → trop peu pour optimiser directement sur Purchase (objectif : 50 conversions/semaine).
+- Stratégie de contournement via ATC logique mais à revoir dès que l'EMQ est corrigé et que le volume monte.
+
+**5 actions Meta recommandées non traitées :**
+- Les actions recommandées dans l'Events Manager sont souvent des corrections de paramètres CAPI. À traiter en priorité avant toute analyse de performance.
+
+---
+
 ## Version 2.0 — 12 mars 2026
 
 **Reconstruction complète du skill.**
